@@ -736,6 +736,28 @@ static int charger_contr_get_battery_temperature(void)
 #endif
 }
 
+
+/* [LGE_UPDATE_S] */
+int lge_get_batt_temp(void)
+{
+   union power_supply_propval val = {0,};
+   int rc = 0;
+
+   rc = cc_psy_getprop(batt_psy, TEMP, &val);
+
+   if (!rc) {
+		pr_cc(PR_DEBUG, "battery temp =%d\n", val.intval);
+		return val.intval;
+   }
+   else
+		return CHARGER_CONTROLLER_BATTERY_DEFAULT_TEMP;
+}
+
+EXPORT_SYMBOL_GPL(lge_get_batt_temp);
+/* [LGE_UPDATE_E] */
+
+
+
 void update_thermal_condition(int state_changed)
 {
 	int ibat_limit_lcs;

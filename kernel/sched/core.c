@@ -1220,6 +1220,8 @@ unsigned int min_capacity = 1024; /* min(rq->capacity) */
 unsigned int max_load_scale_factor = 1024; /* max possible load scale factor */
 unsigned int max_possible_capacity = 1024; /* max(rq->max_possible_capacity) */
 
+unsigned int capacity_scale = 1024;
+
 /* Mask of all CPUs that have  max_possible_capacity */
 cpumask_t mpc_mask = CPU_MASK_ALL;
 
@@ -2349,16 +2351,25 @@ static void __update_min_max_capacity(void)
 {
 	int i;
 	int max = 0, min = INT_MAX;
+	int max_i = 0;
 
 	for_each_online_cpu(i) {
-		if (cpu_rq(i)->capacity > max)
+		if (cpu_rq(i)->capacity > max) {
 			max = cpu_rq(i)->capacity;
+			max_i = i;
+		}
 		if (cpu_rq(i)->capacity < min)
 			min = cpu_rq(i)->capacity;
 	}
 
 	max_capacity = max;
 	min_capacity = min;
+	if (cpu_rq(max_i)->efficiency != max_possible_efficiency) {
+		int temp = max;
+		max = min;
+		min = temp;
+	}
+	capacity_scale = DIV_ROUND_UP(1024 * max, min);
 }
 
 static void update_min_max_capacity(void)

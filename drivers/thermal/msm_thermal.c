@@ -2565,6 +2565,7 @@ static __ref int do_hotplug(void *data)
 				mask |= BIT(cpu);
 			mutex_unlock(&devices->hotplug_dev->clnt_lock);
 		}
+		if (mask != cpus_offlined)
 		update_offline_cores(mask);
 		mutex_unlock(&core_control_mutex);
 
